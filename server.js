@@ -5,7 +5,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Vercel serves /public files through its CDN. Keep Express static serving for local development.
+if (!process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, 'public')));
+}
+
+// Fallback for the home page (also makes local/serverless behavior explicit).
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ==========================================
 // SEED DATA & MOCK DATABASE
